@@ -45,11 +45,11 @@ class ScenarioAeropropulsive(Scenario):
         )
         self.mphys_add_subsystem("coupling", coupling_group)
 
-        self.mphys_add_post_coupling_subsystem_from_builder("prop", prop_builder, self.name)
-        self.mphys_add_post_coupling_subsystem_from_builder("aero", aero_builder, self.name)
+        self._mphys_add_post_coupling_subsystem_from_builder("prop", prop_builder, self.name)
+        self._mphys_add_post_coupling_subsystem_from_builder("aero", aero_builder, self.name)
 
         if bc_coupling_builder is not None:
-            self.mphys_add_post_coupling_subsystem_from_builder("bc_coupling", bc_coupling_builder, self.name)
+            self._mphys_add_post_coupling_subsystem_from_builder("bc_coupling", bc_coupling_builder, self.name)
 
     def _mphys_initialize_builders(self, aero_builder, prop_builder, geometry_builder):
         aero_builder.initialize(self.comm)
