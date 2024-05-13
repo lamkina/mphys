@@ -1,6 +1,7 @@
 import openmdao.api as om
-from .scenario import Scenario
+
 from .coupling_group import CouplingGroup
+from .scenario import Scenario
 
 
 class ScenarioAeropropulsive(Scenario):
@@ -10,8 +11,10 @@ class ScenarioAeropropulsive(Scenario):
         The Scenario will add the aerodynamic and propulsion builders' precoupling subsystem,
         the coupling subsystem, and the postcoupling subsystem.
         """
-        self.options.declare("aero_builder", recordable=False, desc="The Mphys builder for the aerodynamic solver")
-        self.options.declare("prop_builder", recordable=False, desc="The Mphys builder for the propulsion model")
+        super().initialize()
+
+        self.options.declare("aero_builder", recordable=False, desc="The MPhys builder for the aerodynamic solver")
+        self.options.declare("prop_builder", recordable=False, desc="The MPhys builder for the propulsion model")
         self.options.declare(
             "bc_coupling_builder",
             recordable=False,
@@ -96,7 +99,6 @@ class CouplingAeropropulsive(CouplingGroup):
 
         self.mphys_add_subsystem("aero", aero)
         self.mphys_add_subsystem("prop", prop)
-
 
         self.nonlinear_solver = om.NonlinearBlockGS(maxiter=25, iprint=2, atol=1e-8, rtol=1e-8)
         self.linear_solver = om.LinearBlockGS(maxiter=25, iprint=2, atol=1e-8, rtol=1e-8)

@@ -81,19 +81,16 @@ def problem_setup(scenario_name, fea_assembler, problem):
 
 class Top(Multipoint):
     def setup(self):
-        tacs_options = {'element_callback': element_callback,
-                        'problem_setup': problem_setup,
-                        'mesh_file': bdf_file}
-
         # Initialize MPHYS builder for TACS
-        struct_builder = TacsBuilder(tacs_options, coupled=False)
+        struct_builder = TacsBuilder(mesh_file=bdf_file, element_callback=element_callback, problem_setup=problem_setup,
+                                     coupled=False)
         struct_builder.initialize(self.comm)
 
         # Add mesh component
         self.add_subsystem('mesh', struct_builder.get_mesh_coordinate_subsystem())
 
         # add the geometry component, we dont need a builder because we do it here.
-        self.add_subsystem("geometry", OM_DVGEOCOMP(ffd_file=ffd_file))
+        self.add_subsystem("geometry", OM_DVGEOCOMP(file=ffd_file, type="ffd"))
         self.geometry.nom_add_discipline_coords("struct")
 
         self.mphys_add_scenario('tip_shear', ScenarioStructural(struct_builder=struct_builder))
@@ -110,7 +107,7 @@ class Top(Multipoint):
             for i in range(nRefAxPts):
                 geo.scale_y["centerline"].coef[i] = val[i]
 
-        self.geometry.nom_addGeoDVGlobal(dvName="depth", value=np.ones(nRefAxPts), func=depth)
+        self.geometry.nom_addGlobalDV(dvName="depth", value=np.ones(nRefAxPts), func=depth)
 
 
 ################################################################################
@@ -138,3 +135,6 @@ om.n2(prob, show_browser=False, outfile='beam_opt_n2.html')
 
 # Run optimization
 prob.run_driver()
+
+# Write out optimized bdf file
+model.tip_shear.coupling.write_bdf("out.bdf")
